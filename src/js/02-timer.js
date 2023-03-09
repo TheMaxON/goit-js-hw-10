@@ -10,7 +10,6 @@ const refs = {
   seconds: document.querySelector('[data-seconds]'),
 };
 
-const currentDate = new Date();
 let userDate = null;
 
 refs.startBtn.disabled = true;
@@ -22,13 +21,14 @@ const options = {
   minuteIncrement: 1,
   onClose(selectedDates) {
     console.log(selectedDates[0]);
-    if (selectedDates[0] < this.defaultDate) {
+    const currentDate = new Date();
+    if (selectedDates[0] < currentDate) {
       refs.startBtn.disabled = true;
       window.alert('Please choose a date in the future');
       return;
     }
     refs.startBtn.disabled = false;
-    userDate = selectedDates;
+    userDate = selectedDates[0];
   },
 };
 
@@ -36,28 +36,18 @@ const timer = {
   intervalId: null,
   start() {
     this.intervalId = setInterval(() => {
-      let dateNow = new Date();
-      let deltaTime = userDate[0] - dateNow;
-      console.log(deltaTime);
-      const { days, hours, minutes, seconds } = convertMs(deltaTime);
-      refs.days.textContent = days;
-      refs.hours.textContent = hours;
-      refs.minutes.textContent = minutes;
-      refs.seconds.textContent = seconds;
-
-      function convertMs(ms) {
-        const second = 1000;
-        const minute = second * 60;
-        const hour = minute * 60;
-        const day = hour * 24;
-
-        const days = Math.floor(ms / day);
-        const hours = Math.floor((ms % day) / hour);
-        const minutes = Math.floor(((ms % day) % hour) / minute);
-        const seconds = Math.floor((((ms % day) % hour) % minute) / second);
-
-        return { days, hours, minutes, seconds };
+      const dateNow = new Date();
+      const deltaTime = userDate - dateNow;
+      if (deltaTime <= 0) {
+        clearInterval(this.intervalId);
+        window.alert('Time is up!');
+        return;
       }
+      const { days, hours, minutes, seconds } = convertMs(deltaTime);
+      refs.days.textContent = addLeadingZero(days);
+      refs.hours.textContent = addLeadingZero(hours);
+      refs.minutes.textContent = addLeadingZero(minutes);
+      refs.seconds.textContent = addLeadingZero(seconds);
     }, 1000);
   },
 };
@@ -65,3 +55,21 @@ const timer = {
 refs.startBtn.addEventListener('click', timer.start);
 
 flatpickr(refs.input, options);
+
+function convertMs(ms) {
+  const second = 1000;
+  const minute = second * 60;
+  const hour = minute * 60;
+  const day = hour * 24;
+
+  const days = Math.floor(ms / day);
+  const hours = Math.floor((ms % day) / hour);
+  const minutes = Math.floor(((ms % day) % hour) / minute);
+  const seconds = Math.floor((((ms % day) % hour) % minute) / second);
+
+  return { days, hours, minutes, seconds };
+}
+
+function addLeadingZero(value) {
+  return String(value).padStart(2, '0');
+}
