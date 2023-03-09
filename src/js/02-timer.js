@@ -41,7 +41,7 @@ const timer = {
       const deltaTime = userDate - dateNow;
       if (deltaTime <= 0) {
         clearInterval(this.intervalId);
-        window.alert('Time is up!');
+        Notiflix.Notify.warning('Time is up!');
         return;
       }
       const { days, hours, minutes, seconds } = convertMs(deltaTime);
