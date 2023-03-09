@@ -1,14 +1,34 @@
+import Notiflix from 'notiflix';
+
 const refs = {
   submitBtn: document.querySelector('form>button'),
-  form: document.querySelector('form'),
-  delay: Number(form.delay.value),
-  step: Number(form.step.value),
-  amount: Number(form.amount.value),
+  form: document.querySelector('.form'),
 };
 
-form.addEventListener('submit', event => {
+refs.form.addEventListener('submit', event => {
   event.preventDefault();
-  createPromises(delay, step, amount);
+  const delay = Number(refs.form.delay.value);
+  const step = Number(refs.form.step.value);
+  const amount = Number(refs.form.amount.value);
+
+  createPromise(delay, step, amount);
+
+  for (let i = 0; i < amount; i += 1) {
+    createPromise(i + 1, delay + step * i)
+      .then(({ position, delay }) => {
+        // delay += step;
+        Notiflix.Notify.success(
+          `✅ Fulfilled promise ${position} in ${delay}ms`
+        );
+        console.log(`✅ Fulfilled promise ${position} in ${delay}ms`);
+      })
+      .catch(({ position, delay }) => {
+        Notiflix.Notify.failure(
+          `❌ Rejected promise ${position} in ${delay}ms`
+        );
+        console.log(`❌ Rejected promise ${position} in ${delay}ms`);
+      });
+  }
 });
 
 function createPromise(position, delay) {
@@ -25,25 +45,15 @@ function createPromise(position, delay) {
   });
 }
 
-for (let i = 0; i <= amount; i += 1) {
-  createPromise(i, Number(delay.value) + Number(step.value) * i)
-    .then(({ position, delay }) => {
-      console.log(`✅ Fulfilled promise ${position} in ${delay}ms`);
-    })
-    .catch(({ position, delay }) => {
-      console.log(`❌ Rejected promise ${position} in ${delay}ms`);
-    });
-}
-
-function createPromises(amount, delay, step) {
-  let delayTime = delay;
-  for (let i = 1; i <= amount; i++) {
-    createPromise(i, delayTime)
-      .then(() => {
-        delayTime += step;
-      })
-      .catch(err => {
-        console.error(`Promise ${i} rejected: ${err}`);
-      });
-  }
-}
+// function createPromises(amount, delay, step) {
+//   let delayTime = delay;
+//   for (let i = 1; i <= amount; i++) {
+//     createPromise(i, delayTime)
+//       .then(() => {
+//         delayTime += step;
+//       })
+//       .catch(err => {
+//         console.error(`Promise ${i} rejected: ${err}`);
+//       });
+//   }
+// }
