@@ -26,7 +26,6 @@ function onInput(e) {
   fetchCountries(countryName)
     .then(response => {
       if (!response.ok) {
-        Notiflix.Notify.failure('Oops, there is no country with that name');
         throw new Error(response.status);
       }
       return response.json();
@@ -41,12 +40,15 @@ function onInput(e) {
       if (response.length === 1) {
         countryCardMarkup(response);
       } else {
+        refs.countryCardEl.style.display = 'none';
         countriesListMarkup(response);
       }
-      console.log(response);
       return response;
     })
-    .catch(error => console.log(error));
+    .catch(error => {
+      clearMarkups();
+      Notiflix.Notify.failure('Oops, there is no country with that name');
+    });
 }
 
 function countriesListMarkup(countries) {
@@ -70,12 +72,12 @@ function countryCardMarkup(country) {
   const countryInfo = country
     .map(({ name, flags, capital, population, languages }) => {
       return `<div class="country__card-header">
-  <img src="${flags.svg}" alt="${name.official}" width="35" height="25" />
-  <h1>${name.official}</h1>
-</div>
-<p><b>Capital:</b> ${capital}</p>
-<p><b>Population:</b> ${population}</p>
-<p><b>Languages:</b> ${Object.values(languages).join(', ')}</p>`;
+      <img src="${flags.svg}" alt="${name.official}" width="35" height="25" />
+      <h1>${name.official}</h1>
+    </div>
+    <p><b>Capital:</b> ${capital}</p>
+    <p><b>Population:</b> ${population}</p>
+    <p><b>Languages:</b> ${Object.values(languages).join(', ')}</p>`;
     })
     .join('');
   refs.countryCardEl.style.display = 'block';
